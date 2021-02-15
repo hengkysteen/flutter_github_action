@@ -1,0 +1,35 @@
+name: main
+
+on:
+  push:
+    tags:
+      - v*
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+
+  build_appbundle:
+
+    name: Build Release (APK)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.12.13+hotfix.7'
+          channel: "stable"
+      # - run: flutter --version
+      - run: flutter pub get
+      # - run: flutter clean
+      - run: flutter build apk
+      - name: Create a Release APK
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/apk/release/*.apk"
+          token: ${{ secrets.TOKEN }}
